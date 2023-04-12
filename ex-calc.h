@@ -19,7 +19,7 @@ typedef enum
 typedef struct
 {
     value_type type;
-    char value;
+    char value[MAX_NODE_VALUE_LEN];
 } node;
 
 
