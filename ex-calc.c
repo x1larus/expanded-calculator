@@ -71,7 +71,7 @@ node* ec_convert_to_postfix(char infix_expr[])
         if ((!isdigit(infix_expr[i]) || infix_expr[i] != '.' ) && strlen(buf) != 0) // проверка на конец константы
         {
             ans[ans_ptr].type = CONSTANT;
-            ans[ans_ptr].value = buf;
+            strcpy(ans[ans_ptr].value, buf);
             memset(buf, 0, MAX_NODE_VALUE_LEN);
             ans_ptr++;
             continue;
