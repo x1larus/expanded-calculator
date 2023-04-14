@@ -8,9 +8,9 @@
 
 #pragma region ExeptionHandler
 
-void exeption(char comment[])
+void exeption(const char comment[], const char* func, const char *file, int line)
 {
-    fprintf(stderr, comment);
+    fprintf(stderr, "In function %s() (%s:%d): %s\n", func, file, line, comment);
     exit(EXIT_FAILURE);
 }
 
@@ -40,15 +40,20 @@ bool st_is_empty(stack *st)
 void st_push(stack *st, node val)
 {
     if (st->top == MAX_STACK_SIZE - 1)
-        exeption("In st_push: stack overflow");
+        exeption("Stack overflow", __FUNCTION__, __FILE__, __LINE__);
     st->data[++(st->top)] = val;
 }
 
-node st_pop(stack *st)
+// Возвращает верхний элемент стека
+// При delete=true, элемент не будет удален
+node st_pop(stack *st, bool delete)
 {
     if (st_is_empty(st))
-        exeption("In st_pop: stack is empty");
-    return st->data[(st->top)--];
+        exeption("Stack is empty", __FUNCTION__, __FILE__, __LINE__);
+    if (delete)
+        return st->data[(st->top)--];
+    else
+        return st->data[st->top];
 }
 
 #pragma endregion Stack
@@ -56,29 +61,56 @@ node st_pop(stack *st)
 node* ec_convert_to_postfix(char infix_expr[])
 {
     node *ans = (node*)malloc(sizeof(node)*MAX_NODES_COUNT); // результирующая "строка"
-    int ans_ptr = 0;
-    memset(ans, 0, sizeof(node)*MAX_NODES_COUNT);
-    stack *st = st_new();
+    int ans_ptr = 0; // указатель на текущий элемент результирующей строки, одновременно ее размер
+    memset(ans, 0, sizeof(node)*MAX_NODES_COUNT); // занулить все
+    stack *st = st_new(); // создание стека
 
-    char buf[MAX_NODE_VALUE_LEN];
-    memset(buf, 0, MAX_NODE_VALUE_LEN);
+    value_type buf_type; // тип данных в буффере
+    char buf[MAX_NODE_VALUE_LEN]; // буффер, в котором будут парситься числа, функции итд
+    int buf_ptr = 0; // указатель на текущий элемент буффера, одновременно его размер
+    memset(buf, 0, MAX_NODE_VALUE_LEN); // очистить буффер
+    bool buf_use = false; // флаг использования буффера
+
+    bool write_result_flag = false; // флаг необходимости записи в результирующюю строку
+    bool add_stack_flag = false; // флаг необходимости добавления в стек
     
-    for (int i = 0; infix_expr[i] != 0; i++)
+    for (int i = 0; infix_expr[i] != 0; ++i)
     {
         if (infix_expr[i] == ' ') 
             continue;
-        
-        if ((!isdigit(infix_expr[i]) || infix_expr[i] != '.' ) && strlen(buf) != 0) // проверка на конец константы
+
+        if (buf_use) // если что то в буффер пишется
         {
-            ans[ans_ptr].type = CONSTANT;
-            strcpy(ans[ans_ptr].value, buf);
-            memset(buf, 0, MAX_NODE_VALUE_LEN);
-            ans_ptr++;
-            continue;
+            switch (buf_type)
+            {
+            case REAL_CONSTANT:
+                if (isdigit(infix_expr[i]) || infix_expr[i] == '.')
+                    buf[buf_ptr++] = infix_expr[i];
+                else if (infix_expr[i] == 'j')
+                    buf_type = IMAGINARY_CONSTANT;
+                    write_result_flag = true;
+                break;
+            
+            default:
+                break;
+            }
+        } else
+        {
+            if (isdigit(infix_expr[i]))
+            {
+                buf[buf_ptr++] = infix_expr[i];
+                buf_type = REAL_CONSTANT;
+                continue;
+            }
         }
 
-        // надо дописать )
-
-        
+        if (write_result_flag)
+        {
+            ans[ans_ptr].type = buf_type;
+            strncpy(ans[ans_ptr].value, buf, buf_ptr);
+            ans_ptr++;
+            write_result_flag = false;
+            memset(buf, 0, MAX_NODE_VALUE_LEN); // очистить буффер
+        }
     }
 }

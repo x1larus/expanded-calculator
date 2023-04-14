@@ -8,11 +8,12 @@
 typedef enum
 {
     VARIABLE,
-    CONSTANT,
+    REAL_CONSTANT,
+    IMAGINARY_CONSTANT,
     POSTFIX_FUNC, // like a factorial ( 5! )
     PREFIX_FUNC, // like a sin ( sin(x) )
     BIN_OPERATION, // 2+2, 2*2 etc.
-    OP_BRACKET, // (
+    OPEN_BRACKET, // (
     CLOSING_BRACKET // )
 } value_type;
 
