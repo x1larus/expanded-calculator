@@ -1,9 +1,16 @@
 #include <stdio.h>
+#include <stdbool.h>
 
-#include "ex-calc.h"
+#include "types.h"
 
 int main()
 {
-    char infix[MAX_EXPR_LEN] = "1+2*3";
+    List *lst = lst_new();
+    DataNode data1;
+    data1.type = 0;
+    DataNode data2;
+    data2.type = 1;
+    lst_pushBack(lst, data1);
+    lst_pushBack(lst, data2);
     return 0;
 }
