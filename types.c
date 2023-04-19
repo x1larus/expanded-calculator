@@ -29,9 +29,9 @@ void st_push(Stack *st, DataNode val)
 
 DataNode st_pop(Stack *st, bool delete)
 {
-    if (st_is_empty(st))
+    if (st_isEmpty(st))
         exception("Stack is empty", __FUNCTION__, __FILE__, __LINE__);
-    if (!delete)
+    if (delete)
         return st->data[(st->top)--];
     else
         return st->data[st->top];

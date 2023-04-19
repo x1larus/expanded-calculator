@@ -10,11 +10,11 @@ typedef enum value_type
     VARIABLE,
     REAL_CONSTANT,
     IMAGINARY_CONSTANT,
-    POSTFIX_FUNC, // like a factorial ( 5! )
+    UNARY_MINUS,
     PREFIX_FUNC, // like a sin ( sin(x) )
     BIN_OPERATION, // 2+2, 2*2 etc.
     OPEN_BRACKET, // (
-    CLOSING_BRACKET // )
+    TEMPORARY // for parsing
 } ValueType;
 
 typedef struct data_node
@@ -39,7 +39,7 @@ bool st_isEmpty(Stack *st);
 void st_push(Stack *st, DataNode val);
 
 // Возвращает верхний элемент стека
-// При delete=true, элемент не будет удален
+// При delete=false, элемент не будет удален
 DataNode st_pop(Stack *st, bool delete);
 
 typedef struct list_node
@@ -49,7 +49,7 @@ typedef struct list_node
     DataNode data;
 } ListNode;
 
-typedef struct
+typedef struct list
 {
     ListNode *head;
     ListNode *tail;
