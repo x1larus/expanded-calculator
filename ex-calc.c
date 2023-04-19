@@ -1,4 +1,4 @@
-#include "include/ex-calc.h"
+#include "ex-calc.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -7,14 +7,14 @@
 #include <ctype.h>
 
 
-void ec_convert_to_postfix(char infix_expr[])
+List ec_convert_to_postfix(char infix_expr[])
 {
     //node *ans = (node*)malloc(sizeof(node)*MAX_NODES_COUNT); // результирующая "строка"
     int ans_ptr = 0; // указатель на текущий элемент результирующей строки, одновременно ее размер
     //memset(ans, 0, sizeof(node)*MAX_NODES_COUNT); // занулить все
-    stack *st = st_new(); // создание стека
+    Stack *st = st_new(); // создание стека
 
-    value_type buf_type; // тип данных в буффере
+    ValueType buf_type; // тип данных в буффере
     char buf[MAX_NODE_VALUE_LEN]; // буффер, в котором будут парситься числа, функции итд
     int buf_ptr = 0; // указатель на текущий элемент буффера, одновременно его размер
     memset(buf, 0, MAX_NODE_VALUE_LEN); // очистить буффер

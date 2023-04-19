@@ -15,7 +15,7 @@ Stack *st_new()
     return res;
 }
 
-bool st_is_empty(Stack *st)
+bool st_isEmpty(Stack *st)
 {
     return st->top == -1 ? true : false;
 }
