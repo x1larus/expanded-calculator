@@ -8,8 +8,8 @@
 
 
 // Констатный справочник префиксных функций
-static const char kPrefixFuncs[][10] = {"cos", "sin", "tg", "ln", "sqrt", "abs", "exp"};
-static const int kPrefixFuncsCount = 7;
+static const char kPrefixFuncs[][10] = {"cos", "sin", "tg", "ln", "sqrt", "abs", "exp", "~"}; // куда ж без ебучего унарного минуса
+static const int kPrefixFuncsCount = 8;
 
 static const char kBinaryOperators[] = "+-*/^";
 
@@ -19,7 +19,6 @@ typedef enum value_type
     VARIABLE,
     REAL_CONSTANT,
     IMAGINARY_CONSTANT,
-    UNARY_MINUS,
     PREFIX_FUNC, // like a sin ( sin(x) )
     BIN_OPERATION, // 2+2, 2*2 etc.
     OPEN_BRACKET, // (
@@ -80,6 +79,9 @@ List *lst_new();
 
 // Добавляет новый элемент в конец списка
 void lst_pushBack(List *lst, DataNode val);
+
+// Возвращает true, если лист пуст
+bool lst_isEmpty(List *lst);
 
 #pragma endregion ListMethods
 

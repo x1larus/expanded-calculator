@@ -71,4 +71,12 @@ void lst_pushBack(List *lst, DataNode val)
     return;
 }
 
+bool lst_isEmpty(List *lst)
+{
+    if (lst->head == NULL)
+        return true;
+    else
+        return false;
+}
+
 #pragma endregion ListMethods

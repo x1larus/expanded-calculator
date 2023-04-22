@@ -4,7 +4,7 @@
 
 int main()
 {
-    char input[] = "11+22*10";
+    char input[] = "-11+22*10";
     List *result = ec_convertToRPN(input);
 
     ListNode *curr = result->head;

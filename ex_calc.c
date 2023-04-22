@@ -92,7 +92,7 @@ List *ec_convertToRPN(char expr[])
         {
             switch (buf.type)
             {
-            case REAL_CONSTANT:
+            case REAL_CONSTANT: // Если символ является числом...
                 if (isdigit(c) || c == '.')
                 {
                     buf.value[ptr++] = c;
@@ -100,7 +100,7 @@ List *ec_convertToRPN(char expr[])
                 {
                     if (c == 'j')
                         buf.type = IMAGINARY_CONSTANT;
-                    lst_pushBack(res, buf);
+                    lst_pushBack(res, buf); // ..то добавляем его к выходной строке
                     _clearBuf(&buf, &buf_use, &ptr);
                 }
                 break;
@@ -135,6 +135,14 @@ List *ec_convertToRPN(char expr[])
         {
             if (c == '\0') // Строка кончилась
                 break;
+
+            if (c == 'j') // просто мнимая единица
+            {
+                buf.type = IMAGINARY_CONSTANT;
+                buf.value[0] = '1';
+                lst_pushBack(res, buf);
+                _clearBuf(&buf, &buf_use, &ptr);
+            }
 
             if (isdigit(c)) // Если первый символ - число, то это точно константа
             {
@@ -180,9 +188,13 @@ List *ec_convertToRPN(char expr[])
             // Если символ является бинарной операцией
             if (_isBinaryOperation(c))
             {
-                if (c == '-' && 0) // ИСПРАВИТЬ СРОЧНО!!!!!!!!!!!
+                // ЕБАНЫЙ унарный минус может возникнуть только в двух случаях:
+                // 1. После скобки
+                // 2. В самом начале выражения
+                if (c == '-' && (((!st_isEmpty(stack) && st_pop(stack, false).type == OPEN_BRACKET) || lst_isEmpty(res))))
                 {
-                    buf.type = UNARY_MINUS;
+                    buf.type = PREFIX_FUNC;
+                    buf.value[0] = '~';
                     st_push(stack, buf);
                     _clearBuf(&buf, &buf_use, &ptr);
                 } else
