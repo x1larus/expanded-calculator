@@ -5,6 +5,8 @@
 #define MAX_NODE_VALUE_LEN 10
 #define MAX_STACK_SIZE 20
 
+
+// Тип ноды с данными
 typedef enum value_type
 {
     VARIABLE,
@@ -17,12 +19,15 @@ typedef enum value_type
     TEMPORARY // for parsing
 } ValueType;
 
+// Основная нода
 typedef struct data_node
 {
-    ValueType type;
-    char value[MAX_NODE_VALUE_LEN];
+    ValueType type; // тип данных
+    char value[MAX_NODE_VALUE_LEN]; // значение
+    void *func; // ссылка на функцию, если это операция
 } DataNode;
 
+// Стек и стек, че бубнить то
 typedef struct
 {
     int top;
@@ -42,6 +47,7 @@ void st_push(Stack *st, DataNode val);
 // При delete=false, элемент не будет удален
 DataNode st_pop(Stack *st, bool delete);
 
+// Нода двусвязного списка
 typedef struct list_node
 {
     struct list_node *prev;
@@ -49,6 +55,7 @@ typedef struct list_node
     DataNode data;
 } ListNode;
 
+// Лист и лист, че бубнить то
 typedef struct list
 {
     ListNode *head;
@@ -56,6 +63,8 @@ typedef struct list
     int size;
 } List;
 
+// Создает новый лист
 List *lst_new();
 
+// Добавляет новый элемент в конец списка
 void lst_pushBack(List *lst, DataNode val);

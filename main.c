@@ -6,7 +6,7 @@
 
 int main()
 {
-    char input[] = "sin(x + 1/2 + s22)^2";
+    char input[] = "11+22";
     List *result = ec_convertToRPN(input);
 
     ListNode *curr = result->head;

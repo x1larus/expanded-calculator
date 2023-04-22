@@ -8,20 +8,34 @@
 
 #include "exception_handler.h"
 
-const int kPrefixFuncsCount = 12;
-const char kPrefixFuncs[][6] = {   "cos", "sin", "tg", "ln", "sqrt",
-                                "pow", "abs", "exp", "real", "imag",
-                                "mag", "phase"  };
+
 const char kBinOpers[] = "+-*/^";
 
-bool _isPrefixFunc(char *val)
+// Возвращает ссылку на префиксную функцию по ее названию
+// Если такой функции нет, возвращает NULL
+void* _getPrefixFunc(char *val);
+
+// Переработать
+bool _isBinaryOperation(char c);
+
+// Очищает DataNode, используется в парсере
+void _clearBuf(DataNode *buf, bool *buf_use, int *ptr);
+
+// Возвращает приоритет операции
+// (чем больше, тем больше приоритет)
+int _getOperationPriority(char c);
+
+
+#pragma region ServiceFunctions
+
+void* _getPrefixFunc(char *val)
 {
-    for (int i = 0; i < kPrefixFuncsCount; ++i)
+    for (int i = 0; i < kPrefFuncsCount; ++i)
     {
-        if (!strcmp(val, kPrefixFuncs[i])) // возвращает 0, если равны
-            return true;
+        if (!strcmp(val, kPrefFuncs[i].name)) // возвращает 0, если равны
+            return kPrefFuncs[i].func;
     }
-    return false;
+    return NULL;
 }
 
 bool _isBinaryOperation(char c)
@@ -61,6 +75,8 @@ int _getOperationPriority(char c)
     }
 }
 
+#pragma endregion ServiceFunctions
+
 List *ec_convertToRPN(char expr[])
 {
     List *res = lst_new();
@@ -70,14 +86,11 @@ List *ec_convertToRPN(char expr[])
     bool buf_use = false;
     int ptr = 0;
 
-    bool check_unary_minus = true;
-
-    for (int i = 0; i < strlen(expr) + 1; ++i)
+    for (int i = 0; i < strlen(expr) + 1; ++i) // Пока есть ещё символы для чтения
     {
-        char c = expr[i];
+        char c = expr[i]; // Читаем очередной символ
 
-        if (c == ' ')
-            continue;
+        if (c == ' ') continue; // Пропускаем пробелы
         
         if (buf_use)
         {
@@ -91,9 +104,7 @@ List *ec_convertToRPN(char expr[])
                 {
                     if (c == 'j')
                         buf.type = IMAGINARY_CONSTANT;
-                    buf.value[ptr++] = '\0'; // ебучие С строки
                     lst_pushBack(res, buf);
-                    check_unary_minus = false;
                     _clearBuf(&buf, &buf_use, &ptr);
                 }
                 break;
@@ -104,18 +115,17 @@ List *ec_convertToRPN(char expr[])
                     buf.value[ptr++] = c;
                 } else
                 {
-                    buf.value[ptr++] = '\0'; // ебучие С строки
-                    if (_isPrefixFunc(buf.value)) // функция
+                    void *func = _getPrefixFunc(buf.value);
+                    if (func) // функция
                     {
                         buf.type = PREFIX_FUNC;
+                        buf.func = func;
                         st_push(stack, buf);
-                        check_unary_minus = false;
                         _clearBuf(&buf, &buf_use, &ptr);
                     } else // переменная
                     {
                         buf.type = VARIABLE;
                         lst_pushBack(res, buf);
-                        check_unary_minus = false;
                         _clearBuf(&buf, &buf_use, &ptr);
                     }
                 }
@@ -129,30 +139,36 @@ List *ec_convertToRPN(char expr[])
 
         if (!buf_use)
         {
-            if (isdigit(c))
+            if (c == '\0') // Строка кончилась
+                break;
+
+            if (isdigit(c)) // Если первый символ - число, то это точно константа
             {
                 buf.type = REAL_CONSTANT;
                 buf_use = true;
                 buf.value[ptr++] = c;
             }
 
-            if (isalpha(c))
+            if (isalpha(c)) // Если первый символ - буква, то это либо префиксная функция, либо переменная...
             {
-                buf.type = TEMPORARY;
+                buf.type = TEMPORARY; // ...А что именно - ъуъ знает
                 buf_use = true;
                 buf.value[ptr++] = c;
             }
 
-            if (c == '(')
+            if (c == '(') // Если символ является открывающей скобкой...
             {
                 buf.type = OPEN_BRACKET;
-                check_unary_minus = true;
-                st_push(stack, buf);
+                st_push(stack, buf); // ...помещаем его в стек
                 _clearBuf(&buf, &buf_use, &ptr);
             }
 
-            if (c == ')')
+            if (c == ')') // Если символ является закрывающей скобкой:
             {
+                // До тех пор, пока верхним элементом стека не станет открывающая скобка,
+                // выталкиваем элементы из стека в выходную строку. При этом открывающая скобка удаляется из стека,
+                // но в выходную строку не добавляется. Если стек закончился раньше, чем мы встретили открывающую скобку,
+                // это означает, что в выражении либо неверно поставлен разделитель, либо не согласованы скобки.
                 DataNode temp;
                 while (1)
                 {
@@ -167,9 +183,10 @@ List *ec_convertToRPN(char expr[])
                 }
             }
 
+            // Если символ является бинарной операцией
             if (_isBinaryOperation(c))
             {
-                if (c == '-' && check_unary_minus)
+                if (c == '-' && 0) // ИСПРАВИТЬ СРОЧНО!!!!!!!!!!!
                 {
                     buf.type = UNARY_MINUS;
                     st_push(stack, buf);
@@ -184,21 +201,26 @@ List *ec_convertToRPN(char expr[])
                             break;
                         
                         temp = st_pop(stack, false);
+                        // Пока на вершине стека префиксная функция
+                        // ИЛИ
+                        // операция на вершине стека приоритетнее или такого же уровня приоритета
                         if  (temp.type == PREFIX_FUNC ||
                             (temp.type == BIN_OPERATION && _getOperationPriority(temp.value[0]) >= priority))
                         {
-                            lst_pushBack(res, st_pop(stack, true));
+                            lst_pushBack(res, st_pop(stack, true)); // выталкиваем верхний элемент стека в выходную строку
                         } else break;
                     }
                     buf.type = BIN_OPERATION;
                     buf.value[0] = c;
-                    st_push(stack, buf);
+                    st_push(stack, buf); // помещаем операцию o1 в стек
                     _clearBuf(&buf, &buf_use, &ptr);
                 }
             }
         }
     }
 
+    // Когда входная строка закончилась, выталкиваем все символы из стека в выходную строку. 
+    // В стеке должны были остаться только символы операций; если это не так, значит в выражении не согласованы скобки.
     while (!st_isEmpty(stack))
     {
         lst_pushBack(res, st_pop(stack, true));
