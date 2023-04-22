@@ -1,11 +1,11 @@
 #include "types.h"
+#include "exception_handler.h"
 
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
-#include "exception_handler.h"
-
+#pragma region StackMethods
 
 Stack *st_new()
 {
@@ -37,6 +37,10 @@ DataNode st_pop(Stack *st, bool delete)
         return st->data[st->top];
 }
 
+#pragma endregion StackMethods
+
+#pragma region ListMethods
+
 List *lst_new()
 {
     List *res = (List*)malloc(sizeof(List));
@@ -66,3 +70,5 @@ void lst_pushBack(List *lst, DataNode val)
     }
     return;
 }
+
+#pragma endregion ListMethods

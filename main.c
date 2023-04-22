@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <stdbool.h>
-
 #include "ex_calc.h"
-#include "types.h"
 
 int main()
 {
-    char input[] = "11+22";
+    char input[] = "11+22*10";
     List *result = ec_convertToRPN(input);
 
     ListNode *curr = result->head;

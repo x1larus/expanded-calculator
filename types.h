@@ -1,10 +1,17 @@
-#pragma once
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <stdbool.h>
 
 #define MAX_NODE_VALUE_LEN 10
 #define MAX_STACK_SIZE 20
 
+
+// Констатный справочник префиксных функций
+static const char kPrefixFuncs[][10] = {"cos", "sin", "tg", "ln", "sqrt", "abs", "exp"};
+static const int kPrefixFuncsCount = 7;
+
+static const char kBinaryOperators[] = "+-*/^";
 
 // Тип ноды с данными
 typedef enum value_type
@@ -24,28 +31,14 @@ typedef struct data_node
 {
     ValueType type; // тип данных
     char value[MAX_NODE_VALUE_LEN]; // значение
-    void *func; // ссылка на функцию, если это операция
 } DataNode;
 
 // Стек и стек, че бубнить то
-typedef struct
+typedef struct stack
 {
     int top;
     DataNode *data;
 } Stack;
-
-// Создает стек
-Stack *st_new();
-
-// Возвращает true, если стек пуст
-bool st_isEmpty(Stack *st);
-
-// Добавляет элемент в стек
-void st_push(Stack *st, DataNode val);
-
-// Возвращает верхний элемент стека
-// При delete=false, элемент не будет удален
-DataNode st_pop(Stack *st, bool delete);
 
 // Нода двусвязного списка
 typedef struct list_node
@@ -63,8 +56,31 @@ typedef struct list
     int size;
 } List;
 
+#pragma region StackMethods
+
+// Создает стек
+Stack *st_new();
+
+// Возвращает true, если стек пуст
+bool st_isEmpty(Stack *st);
+
+// Добавляет элемент в стек
+void st_push(Stack *st, DataNode val);
+
+// Возвращает верхний элемент стека
+// При delete=false, элемент не будет удален
+DataNode st_pop(Stack *st, bool delete);
+
+#pragma endregion StackMethods
+
+#pragma region ListMethods
+
 // Создает новый лист
 List *lst_new();
 
 // Добавляет новый элемент в конец списка
 void lst_pushBack(List *lst, DataNode val);
+
+#pragma endregion ListMethods
+
+#endif // TYPES_H

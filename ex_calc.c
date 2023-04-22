@@ -1,21 +1,17 @@
 #include "ex_calc.h"
+#include "exception_handler.h"
+#include "types.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <ctype.h>
 
-#include "exception_handler.h"
 
+// Возвращает true если такая префиксная функция есть
+bool _isPrefixFunc(char *val);
 
-const char kBinOpers[] = "+-*/^";
-
-// Возвращает ссылку на префиксную функцию по ее названию
-// Если такой функции нет, возвращает NULL
-void* _getPrefixFunc(char *val);
-
-// Переработать
+// Возвращает true если такая операция есть
 bool _isBinaryOperation(char c);
 
 // Очищает DataNode, используется в парсере
@@ -28,21 +24,21 @@ int _getOperationPriority(char c);
 
 #pragma region ServiceFunctions
 
-void* _getPrefixFunc(char *val)
+bool _isPrefixFunc(char *val)
 {
-    for (int i = 0; i < kPrefFuncsCount; ++i)
+    for (int i = 0; i < kPrefixFuncsCount; ++i)
     {
-        if (!strcmp(val, kPrefFuncs[i].name)) // возвращает 0, если равны
-            return kPrefFuncs[i].func;
+        if (!strcmp(val, kPrefixFuncs[i])) // возвращает 0, если равны
+            return true;
     }
-    return NULL;
+    return false;
 }
 
 bool _isBinaryOperation(char c)
 {
-    for (int i = 0; i < strlen(kBinOpers); ++i)
+    for (long unsigned int i = 0; i < strlen(kBinaryOperators); ++i)
     {
-        if (c == kBinOpers[i])
+        if (c == kBinaryOperators[i])
             return true;
     }
     return false;
@@ -86,7 +82,7 @@ List *ec_convertToRPN(char expr[])
     bool buf_use = false;
     int ptr = 0;
 
-    for (int i = 0; i < strlen(expr) + 1; ++i) // Пока есть ещё символы для чтения
+    for (long unsigned int i = 0; i < strlen(expr) + 1; ++i) // Пока есть ещё символы для чтения
     {
         char c = expr[i]; // Читаем очередной символ
 
@@ -115,11 +111,9 @@ List *ec_convertToRPN(char expr[])
                     buf.value[ptr++] = c;
                 } else
                 {
-                    void *func = _getPrefixFunc(buf.value);
-                    if (func) // функция
+                    if (_isPrefixFunc(buf.value)) // функция
                     {
                         buf.type = PREFIX_FUNC;
-                        buf.func = func;
                         st_push(stack, buf);
                         _clearBuf(&buf, &buf_use, &ptr);
                     } else // переменная
