@@ -46,7 +46,7 @@ bool _isBinaryOperation(char c)
 
 void _clearBuf(DataNode *buf, bool *buf_use, int *ptr)
 {
-    memset(buf, 0, sizeof(buf));
+    memset(buf->value, 0, sizeof(buf->value));
     *buf_use = false; 
     *ptr = 0;
 }
@@ -84,31 +84,32 @@ List *ec_convertToRPN(char expr[])
 
     for (long unsigned int i = 0; i < strlen(expr) + 1; ++i) // Пока есть ещё символы для чтения
     {
-        char c = expr[i]; // Читаем очередной символ
-
-        if (c == ' ') continue; // Пропускаем пробелы
+        if (expr[i] == ' ') continue; // Пропускаем пробелы
         
         if (buf_use)
         {
             switch (buf.type)
             {
             case REAL_CONSTANT: // Если символ является числом...
-                if (isdigit(c) || c == '.')
+                if (isdigit(expr[i]) || expr[i] == '.')
                 {
-                    buf.value[ptr++] = c;
+                    buf.value[ptr++] = expr[i];
                 } else
                 {
-                    if (c == 'j')
+                    if (expr[i] == 'j')
+                    {
                         buf.type = IMAGINARY_CONSTANT;
+                        i++; // чтобы еще раз ее не прочитать
+                    }
                     lst_pushBack(res, buf); // ..то добавляем его к выходной строке
                     _clearBuf(&buf, &buf_use, &ptr);
                 }
                 break;
             
             case TEMPORARY:
-                if (isalnum(c))
+                if (isalnum(expr[i]))
                 {
-                    buf.value[ptr++] = c;
+                    buf.value[ptr++] = expr[i];
                 } else
                 {
                     if (_isPrefixFunc(buf.value)) // функция
@@ -133,10 +134,10 @@ List *ec_convertToRPN(char expr[])
 
         if (!buf_use)
         {
-            if (c == '\0') // Строка кончилась
+            if (expr[i] == '\0') // Строка кончилась
                 break;
 
-            if (c == 'j') // просто мнимая единица
+            if (expr[i] == 'j') // просто мнимая единица
             {
                 buf.type = IMAGINARY_CONSTANT;
                 buf.value[0] = '1';
@@ -144,28 +145,28 @@ List *ec_convertToRPN(char expr[])
                 _clearBuf(&buf, &buf_use, &ptr);
             }
 
-            if (isdigit(c)) // Если первый символ - число, то это точно константа
+            if (isdigit(expr[i])) // Если первый символ - число, то это точно константа
             {
                 buf.type = REAL_CONSTANT;
                 buf_use = true;
-                buf.value[ptr++] = c;
+                buf.value[ptr++] = expr[i];
             }
 
-            if (isalpha(c)) // Если первый символ - буква, то это либо префиксная функция, либо переменная...
+            if (isalpha(expr[i])) // Если первый символ - буква, то это либо префиксная функция, либо переменная...
             {
                 buf.type = TEMPORARY; // ...А что именно - ъуъ знает
                 buf_use = true;
-                buf.value[ptr++] = c;
+                buf.value[ptr++] = expr[i];
             }
 
-            if (c == '(') // Если символ является открывающей скобкой...
+            if (expr[i] == '(') // Если символ является открывающей скобкой...
             {
                 buf.type = OPEN_BRACKET;
                 st_push(stack, buf); // ...помещаем его в стек
                 _clearBuf(&buf, &buf_use, &ptr);
             }
 
-            if (c == ')') // Если символ является закрывающей скобкой:
+            if (expr[i] == ')') // Если символ является закрывающей скобкой:
             {
                 // До тех пор, пока верхним элементом стека не станет открывающая скобка,
                 // выталкиваем элементы из стека в выходную строку. При этом открывающая скобка удаляется из стека,
@@ -186,20 +187,20 @@ List *ec_convertToRPN(char expr[])
             }
 
             // Если символ является бинарной операцией
-            if (_isBinaryOperation(c))
+            if (_isBinaryOperation(expr[i]))
             {
                 // ЕБАНЫЙ унарный минус может возникнуть только в двух случаях:
                 // 1. После скобки
                 // 2. В самом начале выражения
-                if (c == '-' && (((!st_isEmpty(stack) && st_pop(stack, false).type == OPEN_BRACKET) || lst_isEmpty(res))))
+                if (expr[i] == '-' && (((!st_isEmpty(stack) && st_pop(stack, false).type == OPEN_BRACKET) || lst_isEmpty(res))))
                 {
-                    buf.type = PREFIX_FUNC;
+                    buf.type = PREFIX_FUNC; // бинарная операция, бля буду
                     buf.value[0] = '~';
                     st_push(stack, buf);
                     _clearBuf(&buf, &buf_use, &ptr);
                 } else
                 {
-                    int priority = _getOperationPriority(c);
+                    int priority = _getOperationPriority(expr[i]);
                     DataNode temp;
                     while (1)
                     {
@@ -217,7 +218,7 @@ List *ec_convertToRPN(char expr[])
                         } else break;
                     }
                     buf.type = BIN_OPERATION;
-                    buf.value[0] = c;
+                    buf.value[0] = expr[i];
                     st_push(stack, buf); // помещаем операцию o1 в стек
                     _clearBuf(&buf, &buf_use, &ptr);
                 }

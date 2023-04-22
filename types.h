@@ -11,6 +11,7 @@
 static const char kPrefixFuncs[][10] = {"cos", "sin", "tg", "ln", "sqrt", "abs", "exp", "~"}; // куда ж без ебучего унарного минуса
 static const int kPrefixFuncsCount = 8;
 
+// Констатный справочник бинарных операций
 static const char kBinaryOperators[] = "+-*/^";
 
 // Тип ноды с данными
