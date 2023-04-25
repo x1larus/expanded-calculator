@@ -78,11 +78,22 @@ DataNode st_pop(Stack *st, bool delete);
 // Создает новый лист
 List *lst_new();
 
+// Возвращает копию листа в новой памяти
+List *lst_getCopy(List *lst);
+
 // Добавляет новый элемент в конец списка
 void lst_pushBack(List *lst, DataNode val);
 
 // Возвращает true, если лист пуст
 bool lst_isEmpty(List *lst);
+
+// Возвращает листноду, если listnode.data.value == val
+// Если таковой не найдено - NULL
+ListNode *lst_find(List *lst, char val[]);
+
+// Скрещение функций replace и insert
+// Параметры: где менять, какой именно менять, на что менять
+void lst_replaceInsert(List *lst, ListNode *replacedElem, List *insertedLst);
 
 #pragma endregion ListMethods
 

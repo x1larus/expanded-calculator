@@ -49,6 +49,22 @@ List *lst_new()
     res->size = 0;
 }
 
+// Откровенный костыль
+List *lst_getCopy(List *lst)
+{
+    List *res = (List*)malloc(sizeof(List));
+    res->size = lst->size;
+    ListNode *curr = lst->head;
+
+    while (curr)
+    {
+        lst_pushBack(res, curr->data);
+        curr = curr->next;
+    }
+    
+    return res;
+}
+
 void lst_pushBack(List *lst, DataNode val)
 {
     ListNode *new_node = (ListNode*)malloc(sizeof(ListNode));
@@ -77,6 +93,46 @@ bool lst_isEmpty(List *lst)
         return true;
     else
         return false;
+}
+
+ListNode *lst_find(List *lst, char val[])
+{
+    ListNode *curr = lst->head;
+    if (curr == NULL)
+        exception("List is empty", __FUNCTION__, __FILE__, __LINE__);
+    
+    while (curr)
+    {
+        if (strcmp(curr->data.value, val) == 0)
+        {
+            return curr;
+        }
+        curr = curr->next;
+    }
+
+    return NULL;
+}
+
+void lst_replaceInsert(List *lst, ListNode *replacedElem, List *insertedLst)
+{
+    if (lst_isEmpty(lst))
+        exception("List is empty", __FUNCTION__, __FILE__, __LINE__);
+    
+    insertedLst->head->prev = replacedElem->prev;
+    if (replacedElem->prev)
+        replacedElem->prev->next = insertedLst->head;
+    else
+        lst->head = insertedLst->head;
+
+    insertedLst->tail->next = replacedElem->next;
+    if (replacedElem->next)
+        replacedElem->next->prev = insertedLst->tail;
+    else
+        lst->tail = insertedLst->tail;
+
+    lst->size += insertedLst->size - 1;
+
+    free(replacedElem);
 }
 
 #pragma endregion ListMethods

@@ -81,6 +81,7 @@ List *ec_convertToRPN(char expr[])
     DataNode buf;
     bool buf_use = false;
     int ptr = 0;
+    _clearBuf(&buf, &buf_use, &ptr);
 
     for (long unsigned int i = 0; i < strlen(expr) + 1; ++i) // Пока есть ещё символы для чтения
     {
@@ -235,4 +236,34 @@ List *ec_convertToRPN(char expr[])
     }
 
     return res;
+}
+
+char *ec_getVariable(List *expr)
+{
+    ListNode *curr = expr->head;
+    if (curr == NULL)
+        exception("List is empty", __FUNCTION__, __FILE__, __LINE__);
+    
+    while (curr)
+    {
+        if (curr->data.type == VARIABLE)
+            return curr->data.value;
+        curr = curr->next;
+    }
+
+    return NULL;
+}
+
+int ec_addVariableValue(List *expr, char *varName, char *varValue)
+{
+    List *new_var = ec_convertToRPN(varValue);
+    if (lst_isEmpty(new_var))
+        exception("Variable value is empty", __FUNCTION__, __FILE__, __LINE__);
+    
+    ListNode *var_in_expr = lst_find(expr, varName);
+    while (var_in_expr)
+    {
+        lst_replaceInsert(expr, var_in_expr, lst_getCopy(new_var)); // костыль
+        var_in_expr = lst_find(expr, varName);
+    }
 }
