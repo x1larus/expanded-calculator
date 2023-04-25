@@ -263,7 +263,7 @@ int ec_addVariableValue(List *expr, char *varName, char *varValue)
     ListNode *var_in_expr = lst_find(expr, varName);
     while (var_in_expr)
     {
-        lst_replaceInsert(expr, var_in_expr, lst_getCopy(new_var)); // костыль
+        lst_replaceInsert(expr, &var_in_expr, lst_getCopy(new_var)); // костыль
         var_in_expr = lst_find(expr, varName);
     }
 }

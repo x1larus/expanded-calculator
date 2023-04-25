@@ -113,26 +113,26 @@ ListNode *lst_find(List *lst, char val[])
     return NULL;
 }
 
-void lst_replaceInsert(List *lst, ListNode *replacedElem, List *insertedLst)
+void lst_replaceInsert(List *lst, ListNode **replacedElem, List *insertedLst)
 {
     if (lst_isEmpty(lst))
         exception("List is empty", __FUNCTION__, __FILE__, __LINE__);
     
-    insertedLst->head->prev = replacedElem->prev;
-    if (replacedElem->prev)
-        replacedElem->prev->next = insertedLst->head;
+    insertedLst->head->prev = (*replacedElem)->prev;
+    if ((*replacedElem)->prev)
+        (*replacedElem)->prev->next = insertedLst->head;
     else
         lst->head = insertedLst->head;
 
-    insertedLst->tail->next = replacedElem->next;
-    if (replacedElem->next)
-        replacedElem->next->prev = insertedLst->tail;
+    insertedLst->tail->next = (*replacedElem)->next;
+    if ((*replacedElem)->next)
+        (*replacedElem)->next->prev = insertedLst->tail;
     else
         lst->tail = insertedLst->tail;
 
     lst->size += insertedLst->size - 1;
 
-    free(replacedElem);
+    // free(replacedElem);
 }
 
 #pragma endregion ListMethods

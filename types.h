@@ -93,7 +93,7 @@ ListNode *lst_find(List *lst, char val[]);
 
 // Скрещение функций replace и insert
 // Параметры: где менять, какой именно менять, на что менять
-void lst_replaceInsert(List *lst, ListNode *replacedElem, List *insertedLst);
+void lst_replaceInsert(List *lst, ListNode **replacedElem, List *insertedLst);
 
 #pragma endregion ListMethods
 
