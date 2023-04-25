@@ -141,6 +141,7 @@ List *ec_convertToRPN(char expr[])
             {
                 buf.type = IMAGINARY_CONSTANT;
                 buf.value[0] = '1';
+                i++; // чтобы еще раз ее не прочитать
                 lst_pushBack(res, buf);
                 _clearBuf(&buf, &buf_use, &ptr);
             }

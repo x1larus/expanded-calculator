@@ -4,7 +4,7 @@
 
 int main()
 {
-    char input[] = "-exp(1/2j+x+ser1234)";
+    char input[] = "1 + (-1)";
     List *result = ec_convertToRPN(input);
 
     ListNode *curr = result->head;
