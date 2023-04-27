@@ -33,19 +33,24 @@ int main()
     List **variables_values = (List**)malloc(sizeof(List*)*MAX_VARS_COUNT);
     int variables_values_ptr = 0;
 
-    for (ListNode *x = variables->head; x; x = x->next)
+    if (variables)
     {
-        printf("%s = ", x->data.value);
-        scanf("%s", input);
-        List *variable_value = ec_convertToRPN(input);
-        variables_values[variables_values_ptr++] = variable_value;
-        lst_addUnique(variables, variable_value);  
+        for (ListNode *x = variables->head; x; x = x->next)
+        {
+            printf("%s = ", x->data.value);
+            scanf("%s", input);
+            List *variable_value = ec_convertToRPN(input);
+            variables_values[variables_values_ptr++] = variable_value;
+            lst_addUnique(variables, variable_value);  
+        }
+        ec_addVariablesValues(result, variables_values_ptr, variables, variables_values); // добавление их в выражение
     }
-    ec_addVariablesValues(result, variables_values_ptr, variables, variables_values); // добавление их в выражение
     
     print_expr(result);
 
-    
+    double complex res = ec_calculate(result);
+    printf("result = %lf + %lfj\n", creal(res), cimag(res));
+
     
     return 0;
 }

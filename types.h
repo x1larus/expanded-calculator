@@ -8,8 +8,8 @@
 
 
 // Констатный справочник префиксных функций
-static const char kPrefixFuncs[][10] = {"cos", "sin", "tg", "ln", "sqrt", "abs", "exp", "~", "real", "imag", "mag", "phase"}; // куда ж без ебучего унарного минуса
-static const int kPrefixFuncsCount = 12;
+static const char kPrefixFuncs[][10] = {"cos", "sin", "tg", "ln", "sqrt", "abs", "exp", "~", "real", "imag"}; // куда ж без ебучего унарного минуса
+static const int kPrefixFuncsCount = 10;
 
 // Констатный справочник бинарных операций
 static const char kBinaryOperators[] = "+-*/^";

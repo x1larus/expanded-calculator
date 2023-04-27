@@ -267,3 +267,83 @@ void ec_addVariablesValues(List *expr, int n, List *variables, List **variables_
         curr_var = curr_var->next;
     }
 }
+
+double complex ec_calculate(List *expr)
+{
+    if (lst_isEmpty(expr))
+        exception("Expr is empty", __FUNCTION__, __FILE__, __LINE__);
+
+    if (ec_getVariablesList(expr))
+        exception("Some variables are undefined", __FUNCTION__, __FILE__, __LINE__);
+    
+    double complex st[10] = {0};
+    int ptr = 0;
+
+    for (ListNode *x = expr->head; x; x = x->next)
+    {
+        switch (x->data.type)
+        {
+        case REAL_CONSTANT:
+            st[ptr++] = atof(x->data.value);
+            break;
+        
+        case IMAGINARY_CONSTANT:
+            st[ptr++] = atof(x->data.value)*I;
+        
+        case PREFIX_FUNC:
+            if (!strcmp(x->data.value, "cos"))
+                st[ptr-1] = ccos(st[ptr-1]);
+            else if (!strcmp(x->data.value, "sin"))
+                st[ptr-1] = csin(st[ptr-1]);
+            else if (!strcmp(x->data.value, "tg"))
+                st[ptr-1] = ctan(st[ptr-1]);
+            else if (!strcmp(x->data.value, "ln"))
+                st[ptr-1] = clog(st[ptr-1]);
+            else if (!strcmp(x->data.value, "sqrt"))
+                st[ptr-1] = csqrt(st[ptr-1]);
+            else if (!strcmp(x->data.value, "abs"))
+                st[ptr-1] = cabs(st[ptr-1]);
+            else if (!strcmp(x->data.value, "exp"))
+                st[ptr-1] = cexp(st[ptr-1]);
+            else if (!strcmp(x->data.value, "real"))
+                st[ptr-1] = creal(st[ptr-1]);
+            else if (!strcmp(x->data.value, "imag"))
+                st[ptr-1] = cimag(st[ptr-1]);
+            else if (!strcmp(x->data.value, "~"))
+                st[ptr-1] = -st[ptr-1];
+            break;
+        
+        case BIN_OPERATION:
+            if (!strcmp(x->data.value, "+"))
+            {
+                st[ptr-2] = st[ptr-2] + st[ptr-1];
+                ptr--;
+            } else if (!strcmp(x->data.value, "-"))
+            {
+                st[ptr-2] = st[ptr-2] - st[ptr-1];
+                ptr--;
+            } else if (!strcmp(x->data.value, "*"))
+            {
+                st[ptr-2] = st[ptr-2] * st[ptr-1];
+                ptr--;
+            } else if (!strcmp(x->data.value, "/"))
+            {
+                st[ptr-2] = st[ptr-2] / st[ptr-1];
+                ptr--;
+            } else if (!strcmp(x->data.value, "^"))
+            {
+                st[ptr-2] = cpow(st[ptr-2], st[ptr-1]);
+                ptr--;
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if (ptr != 1)
+        exception("Expr syntax error", __FUNCTION__, __FILE__, __LINE__);
+
+    return st[0];
+}
