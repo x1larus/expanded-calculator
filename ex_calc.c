@@ -83,6 +83,8 @@ List *ec_convertToRPN(char expr[])
     int ptr = 0;
     _clearBuf(&buf, &buf_use, &ptr);
 
+    bool unary_minus_flag = true;
+
     for (long unsigned int i = 0; i < strlen(expr) + 1; ++i) // Пока есть ещё символы для чтения
     {
         if (expr[i] == ' ') continue; // Пропускаем пробелы
@@ -103,6 +105,7 @@ List *ec_convertToRPN(char expr[])
                         i++; // чтобы еще раз ее не прочитать
                     }
                     lst_pushBack(res, buf); // ..то добавляем его к выходной строке
+                    unary_minus_flag = false;
                     _clearBuf(&buf, &buf_use, &ptr);
                 }
                 break;
@@ -117,11 +120,13 @@ List *ec_convertToRPN(char expr[])
                     {
                         buf.type = PREFIX_FUNC;
                         st_push(stack, buf);
+                        unary_minus_flag = false;
                         _clearBuf(&buf, &buf_use, &ptr);
                     } else // переменная
                     {
                         buf.type = VARIABLE;
                         lst_pushBack(res, buf);
+                        unary_minus_flag = false;
                         _clearBuf(&buf, &buf_use, &ptr);
                     }
                 }
@@ -144,6 +149,7 @@ List *ec_convertToRPN(char expr[])
                 buf.value[0] = '1';
                 i++; // чтобы еще раз ее не прочитать
                 lst_pushBack(res, buf);
+                unary_minus_flag = false;
                 _clearBuf(&buf, &buf_use, &ptr);
             }
 
@@ -164,6 +170,7 @@ List *ec_convertToRPN(char expr[])
             if (expr[i] == '(') // Если символ является открывающей скобкой...
             {
                 buf.type = OPEN_BRACKET;
+                unary_minus_flag = true;
                 st_push(stack, buf); // ...помещаем его в стек
                 _clearBuf(&buf, &buf_use, &ptr);
             }
@@ -174,6 +181,7 @@ List *ec_convertToRPN(char expr[])
                 // выталкиваем элементы из стека в выходную строку. При этом открывающая скобка удаляется из стека,
                 // но в выходную строку не добавляется. Если стек закончился раньше, чем мы встретили открывающую скобку,
                 // это означает, что в выражении либо неверно поставлен разделитель, либо не согласованы скобки.
+                unary_minus_flag = false;
                 DataNode temp;
                 while (1)
                 {
@@ -194,11 +202,12 @@ List *ec_convertToRPN(char expr[])
                 // ЕБАНЫЙ унарный минус может возникнуть только в двух случаях:
                 // 1. После скобки
                 // 2. В самом начале выражения
-                if (expr[i] == '-' && (((!st_isEmpty(stack) && st_pop(stack, false).type == OPEN_BRACKET) || lst_isEmpty(res))))
+                if (expr[i] == '-' && unary_minus_flag)
                 {
                     buf.type = PREFIX_FUNC; // бинарная операция, бля буду
                     buf.value[0] = '~';
                     st_push(stack, buf);
+                    unary_minus_flag = false;
                     _clearBuf(&buf, &buf_use, &ptr);
                 } else
                 {
@@ -222,6 +231,7 @@ List *ec_convertToRPN(char expr[])
                     buf.type = BIN_OPERATION;
                     buf.value[0] = expr[i];
                     st_push(stack, buf); // помещаем операцию o1 в стек
+                    unary_minus_flag = false;
                     _clearBuf(&buf, &buf_use, &ptr);
                 }
             }
