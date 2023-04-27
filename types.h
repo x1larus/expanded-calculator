@@ -95,7 +95,7 @@ ListNode *lst_find(List *lst, char val[]);
 // Параметры: где менять, какой именно менять, на что менять
 void lst_replaceInsert(List *lst, ListNode **replacedElem, List *insertedLst);
 
-// Добавляет из src в конец dest те объекты типа VARIABLE, которых нет в dest
+// Добавляет из src в конец dest те объекты, которых нет в dest
 void lst_addUnique(List *dest, List *src);
 
 #pragma endregion ListMethods

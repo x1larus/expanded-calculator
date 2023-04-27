@@ -143,7 +143,7 @@ void lst_addUnique(List *dest, List *src)
 
     for (ListNode *x = src->head; x; x = x->next)
     {
-        if (x->data.type == VARIABLE && !lst_find(dest, x->data.value))
+        if (!lst_find(dest, x->data.value))
         {
             lst_pushBack(dest, x->data);
         }

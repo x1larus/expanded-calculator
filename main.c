@@ -41,7 +41,7 @@ int main()
             scanf("%s", input);
             List *variable_value = ec_convertToRPN(input);
             variables_values[variables_values_ptr++] = variable_value;
-            lst_addUnique(variables, variable_value);  
+            lst_addUnique(variables, ec_getVariablesList(variable_value));  
         }
         ec_addVariablesValues(result, variables_values_ptr, variables, variables_values); // добавление их в выражение
     }
