@@ -8,8 +8,8 @@
 
 
 // Констатный справочник префиксных функций
-static const char kPrefixFuncs[][10] = {"cos", "sin", "tg", "ln", "sqrt", "abs", "exp", "~"}; // куда ж без ебучего унарного минуса
-static const int kPrefixFuncsCount = 8;
+static const char kPrefixFuncs[][10] = {"cos", "sin", "tg", "ln", "sqrt", "abs", "exp", "~", "real", "imag", "mag", "phase"}; // куда ж без ебучего унарного минуса
+static const int kPrefixFuncsCount = 12;
 
 // Констатный справочник бинарных операций
 static const char kBinaryOperators[] = "+-*/^";
@@ -94,6 +94,9 @@ ListNode *lst_find(List *lst, char val[]);
 // Скрещение функций replace и insert
 // Параметры: где менять, какой именно менять, на что менять
 void lst_replaceInsert(List *lst, ListNode **replacedElem, List *insertedLst);
+
+// Добавляет из src в конец dest те объекты типа VARIABLE, которых нет в dest
+void lst_addUnique(List *dest, List *src);
 
 #pragma endregion ListMethods
 

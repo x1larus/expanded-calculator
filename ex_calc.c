@@ -238,32 +238,32 @@ List *ec_convertToRPN(char expr[])
     return res;
 }
 
-char *ec_getVariable(List *expr)
+List *ec_getVariablesList(List *expr)
 {
+    List *res = lst_new();
     ListNode *curr = expr->head;
     if (curr == NULL)
-        exception("List is empty", __FUNCTION__, __FILE__, __LINE__);
+        exception("Expression is empty", __FUNCTION__, __FILE__, __LINE__);
     
     while (curr)
     {
-        if (curr->data.type == VARIABLE)
-            return curr->data.value;
+        if (curr->data.type == VARIABLE && !lst_find(res, curr->data.value))
+            lst_pushBack(res, curr->data);
         curr = curr->next;
     }
 
-    return NULL;
+    return res->size ? res : NULL;
 }
 
-int ec_addVariableValue(List *expr, char *varName, char *varValue)
+void ec_addVariablesValues(List *expr, int n, List *variables, List **variables_values)
 {
-    List *new_var = ec_convertToRPN(varValue);
-    if (lst_isEmpty(new_var))
-        exception("Variable value is empty", __FUNCTION__, __FILE__, __LINE__);
-    
-    ListNode *var_in_expr = lst_find(expr, varName);
-    while (var_in_expr)
+    ListNode *curr_var = variables->head;
+    for (int i = 0; i < n; i++)
     {
-        lst_replaceInsert(expr, &var_in_expr, lst_getCopy(new_var)); // костыль
-        var_in_expr = lst_find(expr, varName);
+        for (ListNode *var_in_expr = lst_find(expr, curr_var->data.value); var_in_expr; var_in_expr = lst_find(expr, curr_var->data.value))
+        {
+            lst_replaceInsert(expr, &var_in_expr, variables_values[i]);
+        }
+        curr_var = curr_var->next;
     }
 }

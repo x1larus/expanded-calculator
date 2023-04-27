@@ -7,12 +7,11 @@
 // Возвращает лист объектов в обратной польской записи
 List *ec_convertToRPN(char expr[]);
 
-// Возвращает первую переменную в выражении
+// Возвращает имена всех неизвестных переменных
 // Если переменных нет, возвращает NULL
-char *ec_getVariable(List *expr);
+List *ec_getVariablesList(List *expr);
 
-// Заменяет переменную в выражении на ее значение
-// Возвращает количество замен
-int ec_addVariableValue(List *expr, char *varName, char *varValue);
+// Заменяет переменные в выражении на их значение
+void ec_addVariablesValues(List *expr, int n, List *variables, List **variables_values);
 
 #endif // EX_CALC_H

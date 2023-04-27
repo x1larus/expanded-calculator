@@ -99,7 +99,7 @@ ListNode *lst_find(List *lst, char val[])
 {
     ListNode *curr = lst->head;
     if (curr == NULL)
-        exception("List is empty", __FUNCTION__, __FILE__, __LINE__);
+        return NULL;
     
     while (curr)
     {
@@ -115,24 +115,39 @@ ListNode *lst_find(List *lst, char val[])
 
 void lst_replaceInsert(List *lst, ListNode **replacedElem, List *insertedLst)
 {
+    List *ins = lst_getCopy(insertedLst);
     if (lst_isEmpty(lst))
         exception("List is empty", __FUNCTION__, __FILE__, __LINE__);
     
-    insertedLst->head->prev = (*replacedElem)->prev;
+    ins->head->prev = (*replacedElem)->prev;
     if ((*replacedElem)->prev)
-        (*replacedElem)->prev->next = insertedLst->head;
+        (*replacedElem)->prev->next = ins->head;
     else
-        lst->head = insertedLst->head;
+        lst->head = ins->head;
 
-    insertedLst->tail->next = (*replacedElem)->next;
+    ins->tail->next = (*replacedElem)->next;
     if ((*replacedElem)->next)
-        (*replacedElem)->next->prev = insertedLst->tail;
+        (*replacedElem)->next->prev = ins->tail;
     else
-        lst->tail = insertedLst->tail;
+        lst->tail = ins->tail;
 
-    lst->size += insertedLst->size - 1;
+    lst->size += ins->size - 1;
 
     // free(replacedElem);
+}
+
+void lst_addUnique(List *dest, List *src)
+{
+    if (!dest || !src)
+        return;
+
+    for (ListNode *x = src->head; x; x = x->next)
+    {
+        if (x->data.type == VARIABLE && !lst_find(dest, x->data.value))
+        {
+            lst_pushBack(dest, x->data);
+        }
+    }
 }
 
 #pragma endregion ListMethods

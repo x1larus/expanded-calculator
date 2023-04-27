@@ -31,7 +31,7 @@ asd = -2.5
 ```
 exp(-j*PI*alpha*len/v0)
 alpha = sqrt(PI*len/(s1+s2))
-s1 = cos(real(S11) * real(S22))
+s1 = cos(real(S11)*real(S22))
 s2 = (sin(imag(S11*S22)))^2
 len = 191.76
 v0 = 299.799
