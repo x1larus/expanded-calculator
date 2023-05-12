@@ -124,7 +124,19 @@ List *ec_convertToRPN(char expr[])
                         _clearBuf(&buf, &buf_use, &ptr);
                     } else // переменная
                     {
-                        buf.type = VARIABLE;
+                        // константы
+                        if (!strcmp(buf.value, "PI"))
+                        {
+                            buf.type = REAL_CONSTANT;
+                            strcpy(buf.value, "3.14159265359");
+                        } else if (!strcmp(buf.value, "e"))
+                        {
+                            buf.type = REAL_CONSTANT;
+                            strcpy(buf.value, "2.71828182846");
+                        } else
+                        {
+                            buf.type = VARIABLE;
+                        }
                         lst_pushBack(res, buf);
                         unary_minus_flag = false;
                         _clearBuf(&buf, &buf_use, &ptr);

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define MAX_NODE_VALUE_LEN 10
+#define MAX_NODE_VALUE_LEN 20
 #define MAX_STACK_SIZE 20
 
 
